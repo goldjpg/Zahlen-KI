@@ -1,0 +1,229 @@
+*{
+	margin:0;
+	padding:0;
+}
+
+article h1,h2,h3,p,ul,ol{
+	padding-bottom:.7em;
+}
+
+article ul, ol{
+	padding-left:2em;
+}
+
+html,body{
+	font: 100% Comic Sans MS;
+}
+
+h1{
+	font-size: 2.5em;
+	text-align:center;
+	font-family: cursive;
+}
+
+li{
+	font-size: 1.7em;
+}
+
+li li{
+	font-size: 1em;
+}
+
+tr{
+	font-size: 1.7em;
+}
+
+td{
+	border: 1px solid black;
+	padding: 0.3em;
+	background-color: white;
+}
+
+th{
+	border: 1px solid black;
+	padding: 0.3em;
+	background-color:gray;
+}
+
+p{
+	font-size: 1.5em;
+	text-align: justify;
+	font-family: sans-serif;
+}
+
+header{
+	background:url(../img/hundelogo.jpg) no-repeat left top #d8be9b;
+	height:50px;
+}
+
+nav{
+	background-color: lightblue;
+	padding-left:1em;
+}
+
+article{
+	background-color: green;
+	padding:2em;
+}
+
+footer{
+	background-color: lightblue;
+	padding-left:1em;
+}
+
+header p{
+	color:red;
+	text-align:left;
+	font-size:2em;
+}
+
+table{
+	border:5px solid black;
+	text-align: center;
+}
+
+nav ul{
+	color: darkblue;
+	font-weight:bold;
+	padding: 0 .5em 0 .5em;
+}
+
+nav li{
+	display:inline;
+	list-style-type: none;
+	padding: 0 .5em 0 .5em;
+}
+
+nav li a{
+	color:white;
+	text-decoration: none;
+}
+
+.login{
+	text-align: right;
+}
+
+.login ul{
+	color: darkblue;
+	font-weight:bold;
+	display:inline;
+}
+
+.login li{
+	list-style-type: none;
+	padding: 0 .5em 0 .5em;
+	color: black;
+}
+
+.logout{
+	color:red;
+	text-decoration: none;
+}
+
+
+
+/*figure{
+	position:relative;
+	margin:0;
+	padding:10px;
+	width: 275px;
+	border:1px solid gainsboro;
+	background: white;
+}
+
+figcaption{
+	padding: 10px;
+	text-align: center;
+}*/
+
+figure, figcaption{
+	margin:0;
+	padding:0;
+}
+
+figure.einzel{
+	position: relative;
+	display: inline-block;
+	width: 32.0%;
+}
+
+figure img{
+	width: 100%;
+	display:block;
+}
+
+figcaption{
+	position: absolute;
+	bottom:0;
+	width: 100%;
+	text-align: center;
+	line-height: 3em;
+	color: white;
+	background: rgba(0,0,0,0.5);
+}
+
+.gesamt{
+	position: relative;
+	color: white;
+}
+
+form {
+	width: 20em;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+label.h2 {
+	font-weight: bold;
+	font-size: 150%;
+	width: 100%;
+	margin-bottom: 1em;
+}
+
+input,
+label,textarea {
+	float: left;
+	width: 40%;
+}
+
+input {
+	margin: 0 0 1em .2em;
+	padding: .2em .5em;
+	background-color: #fffbf0;
+	border: 1px solid #e7c157;
+}
+
+label.input {
+	text-align: right;
+	line-height: 1.5;
+}
+
+label.input::after {
+	content: ": ";
+}
+
+button {
+	margin-top: 1.5em;
+	width: 30%;
+}
+
+textarea {
+	margin-top: 1.5em;
+	caret-color: red;
+	width: 20em;
+	height: 15em;
+	border: 1px solid #cccccc;
+	font-family: Tahoma, sans-serif;
+}
+
+textarea:focus {
+	background: #FFC;
+}
+
+.inhaltslabel{
+	margin-top: 1.5em;
+}
+main{
+	margin-left: auto;
+	margin-right: auto;
+}
