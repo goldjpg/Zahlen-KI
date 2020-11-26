@@ -11,13 +11,16 @@
 	</header>
 	
 	<article>
-		<h1>Formel eigeben</h1>
+		<a href="bild.php">[Reset]</a>
+		<h1>Zahl eingeben</h1>
 		<br>
 		<main>
-		<form action="process.php" method="post" enctype="multipart/form-data">
-			<input type="text" name="formel">
+		<form action="run.php?id=<?php echo $_GET["formel"]?>" method="post" enctype="multipart/form-data">
+			<input type="number" name="zahl">
 			<input type="submit" value="Trainieren">
 		</form>
+		<br>
+		<h2>Ergebnis: <?php echo @$_GET["result"]?><h2>
 	</main>
 	</article>
 	<footer>

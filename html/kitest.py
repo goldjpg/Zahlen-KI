@@ -1,3 +1,4 @@
+import sys
 from time import sleep;
 sleep(3)
-print("apfel")
+print(str(sys.argv))
