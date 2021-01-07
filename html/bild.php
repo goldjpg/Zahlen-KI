@@ -14,7 +14,7 @@
 		<h1>Formel eigeben</h1>
 		<br>
 		<main>
-		<form action="process.php" method="post" enctype="multipart/form-data">
+		<form action="train.php" method="post" enctype="multipart/form-data">
 			<input type="text" name="formel">
 			<input type="submit" value="Trainieren">
 		</form>
