@@ -24,10 +24,13 @@ class Network(object):
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
     def train(self, training_data, iterations, mini_batch_size, lr, savingRate,
-            test_data=None): #minibatch stochastic gradient descent
+            test_data=None, formel=""): #minibatch stochastic gradient descent
 
         if test_data: n_test = len(test_data)
         n = len(training_data)
+
+        #n_test = sum(1 for _ in test_data)
+        #n = sum(1 for _ in training_data)
 
         if mini_batch_size == -1:
             mini_batch_size = n
@@ -44,8 +47,7 @@ class Network(object):
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, lr)
             if test_data:
-                print("Epoch {0}: {1} / {2}".format(
-                    i, self.evaluate(test_data), n_test))
+                print("Epoch {0}: {1} / {2}".format(i, self.evaluate(test_data), n_test))
             else:
                 #print("Epoch {0} complete".format(j))
                 pass
@@ -62,62 +64,82 @@ class Network(object):
                     print(f"Status: {status}% at ", getTimestamp())
                 #self.doTest()
 
-        self.save()
+        self.save(formel)
 
     def update_mini_batch(self, mini_batch, lr):
         gradient_b = [np.zeros(b.shape) for b in self.biases]
         gradient_w = [np.zeros(w.shape) for w in self.weights]
+        cost = 0
+        usematrices = False
+        if usematrices:
+            xmat = np.hstack([x] for x,y in mini_batch)
+            ymat = np.hstack([y] for x,y in mini_batch)
+            delta_gradient_b, delta_gradient_w, c = self.backpropagation(xmat, ymat)
+        else:
+            for x, y in mini_batch:
+                #print("shape:")
+                #print(np.shape(x))
+                #print(np.shape(y))
 
-        for x, y in mini_batch:
-            delta_gradient_b, delta_gradient_w = self.backprop(x, y)
-            gradient_b = [b+delta_b for b, delta_b in zip(gradient_b, delta_gradient_b)] #für mini batch updaten
-            gradient_w = [w+delta_w for w, delta_w in zip(gradient_w, delta_gradient_w)]
+                delta_gradient_b, delta_gradient_w, c = self.backpropagation(x, y)
+                gradient_b = [b+delta_b for b, delta_b in zip(gradient_b, delta_gradient_b)] #für mini batch updaten
+                gradient_w = [w+delta_w for w, delta_w in zip(gradient_w, delta_gradient_w)]
+                cost += c
 
-        lr2 = lr/len(mini_batch)
-        self.weights = [w-lr2*nw #gesamt updaten
-                        for w, nw in zip(self.weights, gradient_w)]
-        self.biases = [b-lr2*nb
-                       for b, nb in zip(self.biases, gradient_b)]
+            lr2 = lr / len(mini_batch)#lr * len(mini_batch)# #len(mini_batch) / lr wäre logischer xD #official
+            #lr2 = lr * len(mini_batch)# #len(mini_batch) / lr wäre logischer xD #own
+            self.weights = [w-lr2*nw #gesamt update
+                            for w, nw in zip(self.weights, gradient_w)]
+            self.biases = [b-lr2*nb
+                           for b, nb in zip(self.biases, gradient_b)]
 
-    def backprop(self, x, y):
-        """Return a tuple ``(nabla_b, nabla_w)`` representing the
-        gradient for the cost function C_x.  ``nabla_b`` and
-        ``nabla_w`` are layer-by-layer lists of numpy arrays, similar
-        to ``self.biases`` and ``self.weights``."""
-        nabla_b = [np.zeros(b.shape) for b in self.biases]
-        nabla_w = [np.zeros(w.shape) for w in self.weights]
-        # feedforward
+        if False:
+            cost = cost / (2*len(mini_batch))
+            print("Cost: ", cost)
+
+    def backpropagation(self, x, y): #x: input, y: perfect output
+        gradient_bias = [np.zeros(b.shape) for b in self.biases]
+        gradient_weight = [np.zeros(w.shape) for w in self.weights]
+
+        # Berechnung der Ausgabewerte und Speicherug aller Aktivierungen sowie z Werte
         activation = x
-        activations = [x] # list to store all the activations, layer by layer
-        zs = [] # list to store all the z vectors, layer by layer
-        for b, w in zip(self.biases, self.weights):
-            z = np.dot(w, activation)+b
-            zs.append(z)
+        activations = [x] #alle Aktivierungen, Schicht für Schicht
+        zs = [] #  alle z Vektoren, Schicht für Schicht
+
+        for w, b in zip(self.weights, self.biases):
+            z = np.dot(w, activation) + b
             activation = sigmoid(z)
+            zs.append(z)
             activations.append(activation)
-        # backward pass
-        delta = self.cost_derivative(activations[-1], y) * \
-            sigmoid_prime(zs[-1])
-        nabla_b[-1] = delta
-        nabla_w[-1] = np.dot(delta, activations[-2].transpose())
-        # Note that the variable l in the loop below is used a little
-        # differently to the notation in Chapter 2 of the book.  Here,
-        # l = 1 means the last layer of neurons, l = 2 is the
-        # second-last layer, and so on.  It's a renumbering of the
-        # scheme in the book, used here to take advantage of the fact
-        # that Python can use negative indices in lists.
+
+        #Cost errechnen
+
+        cost = (np.linalg.norm(activations[-1] - y)) ** 2
+
+        # Backpropagation
+        # Fehlerwert letzte Schicht
+        delta = (activations[-1] - y) * sigmoid_derivative(zs[-1]) # Anwendung des Hadamard Produkts
+
+        # Ableitung nach Bias Units und Gewichtungen
+        gradient_bias[-1] = delta
+        gradient_weight[-1] = np.dot(delta, activations[-2].T)
+
+        # rückwärts die Werte für alle Schichten berechnen
         for l in range(2, self.num_layers):
             z = zs[-l]
-            sp = sigmoid_prime(z)
-            delta = np.dot(self.weights[-l+1].transpose(), delta) * sp
-            nabla_b[-l] = delta
-            nabla_w[-l] = np.dot(delta, activations[-l-1].transpose())
-        return (nabla_b, nabla_w)
+
+            # Fehlerwert für alle weiteren Schichten
+            delta = np.dot(self.weights[-l+1].T, delta) * sigmoid_derivative(z) # Multiiplikation mit dem Fehlerwert der Schicht danach und anschließend Anwendung des Hadamard Produkts für die Multiplikation mit der Ableitung der Sigmoidfunktion
+
+            # Ableitung nach Bias Units und Gewichtungen
+            gradient_bias[-l] = delta
+            gradient_weight[-l] = np.dot(delta, activations[-l-1].T)
+
+        return (gradient_bias, gradient_weight, cost)
 
     def feedforward(self, a):
-        for b, w in zip(self.biases, self.weights):
-            #print("shape a", np.shape(a), "\nshape w", np.shape(w))
-            a = sigmoid(np.dot(w, a)+b)
+        for w,b in zip(self.weights, self.biases):
+            a = sigmoid(np.dot(w, a) + b)
         return a
 
     def evaluate(self, test_data):
@@ -129,16 +151,16 @@ class Network(object):
                         for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
 
-    def cost_derivative(self, output_activations, y):
-        return (output_activations-y) #1/2 * 2(out-y)^1
-
-    def save(self):
+    def save(self, formel=""):
         if productionCode:
             id = str(datetime.now().timestamp())
             newPath = neural_net.savePath + id
             os.mkdir(newPath)
             np.save(newPath+"\\weights.npy", self.weights, allow_pickle=True)
             np.save(newPath+"\\biases.npy", self.biases, allow_pickle=True)
+            if formel != "":
+                with open(newPath+"\\formel.txt", "w") as f:
+                    f.write(formel)
             print(id)
         else:
             np.save(neural_net.savePath + "weights.npy", self.weights, allow_pickle=True)
@@ -172,20 +194,25 @@ class Network(object):
         if logSaving:
             print("loaded network")
 
-    def doTest(self):
-        testpath = neural_net.savePath + "training\\data\\apfel\\"
+    def doTest(self, image=False):
+        testpath = neural_net.savePath + "training\\mnistdata\\apfel\\"
+
         p = testpath + "1.jpg"
         if logTraining:
-            print("Testing : ", p)
-            print(self.feedforward(neural_net.getArrayData(p, np.zeros((5, 5)))[0]))
+            if image:
+                p = neural_net.savePath + "out2\\w1.png"
+                print(p)
+                print("Testing : ", p)
+                print(self.feedforward(neural_net.getArrayData(p, np.zeros((5, 5)))[0]))
+            else:
+                print("Testing : ", p)
+                print(self.feedforward(neural_net.getArrayData(p, np.zeros((5, 5)))[0]))
 
 
 def sigmoid(z):
-    """The sigmoid function."""
     return 1.0/(1.0+np.exp(-z))
 
-def sigmoid_prime(z):
-    """Derivative of the sigmoid function."""
+def sigmoid_derivative(z):
     return sigmoid(z)*(1-sigmoid(z))
 
 def main2():
@@ -193,6 +220,8 @@ def main2():
 
     run = False
     train = False
+    log = False
+
 
     args = sys.argv
     formel = "2*x"
@@ -211,9 +240,8 @@ def main2():
     except Exception as e:
         print("ERROR", str(e))
 
-    log = False
 
-    sizes = [1, 10, 10, 1]  # [2700,500,100, 10, 2]
+    sizes = [1,8, 5, 5, 5, 1]  # sizes = [1, 8, 5, 1]
     # sizes = [3, 5,3, 1]
     net = Network(sizes)
     if not productionCode:
@@ -221,8 +249,11 @@ def main2():
             net.load()
         except:
             net.save()
-
+    #print(net.weights[1])
+    #print(net.biases[0])
     training_data = neural_net.loadTrainingDataNumbers(formel)
+    #print(training_data)
+    #print(training_data)
     #training_data = [(np.array([[0, 0, 1]]).T, np.array([[0]])), (np.array([[0, 1, 1]]).T, np.array([[1]])), (np.array([[1, 0, 1]]).T, np.array([[1]])), (np.array([[0, 1, 0]]).T, np.array([[1]])), (np.array([[1, 0, 0]]).T, np.array([[1]])), (np.array([[1, 1, 1]]).T,np.array([[0]])), (np.array([[0, 0, 0]]).T, np.array([[0]]))]
 
     if log:
@@ -235,10 +266,19 @@ def main2():
         print((net.biases))
 
     if train:
-        net.train(training_data, 10, 50, 2, 50)
+        ITERATIONS = 100
+        net.train(training_data, ITERATIONS, 20, 2, ITERATIONS, formel=formel)
     elif run:
-        net.load(id=args[2])
-        print(net.feedforward(np.array([[float(args[3]) / neural_net.NUMBERLIMIT]]))[0][0] * neural_net.NUMBERLIMIT)
+        id = args[2]
+        x = float(args[3])
+        net.load(id=id)
+        p = neural_net.savePath + f"\\{id}"
+        formel = ""
+        with open(p + "\\formel.txt", "r") as f:
+            formel = f.read()
+        #print(formel)
+        #print(neural_net.trainingFunction(x, formel), formel)
+        print(str(net.feedforward(np.array([[x / neural_net.NUMBERLIMIT]]))[0][0] * neural_net.NUMBERLIMIT)+" Richtig: "+str(neural_net.trainingFunction(x,formel)))
 
     if log:
         tests = 5
@@ -253,12 +293,29 @@ def main2():
 
     exit()
 
+def main3():
+    import mnist_loader
+    trainingdata, validationdata, testdata = mnist_loader.load_data_wrapper()
+    net = Network([784, 30, 10])
+    trainingdata = (trainingdata)
+
+    trd = []
+    for t in trainingdata:
+        trd.append(t)
+
+    td = []
+    for t in testdata:
+        td.append(t)
+    print(testdata)
+    print("training..")
+    net.train(trd, 30,10,3.0,30,test_data=td)
+    exit()
+
 if __name__ == "__main__":
     warnings.filterwarnings('ignore')
     main2()
-
     log = False
-    sizes = [2700, 5, 2] #[2700,500,100, 10, 2]
+    sizes = [3,5,2]#[2700, 5, 2] #[2700,500,100, 10, 2]
     net = Network(sizes)
     try:
         net.load()
@@ -266,8 +323,8 @@ if __name__ == "__main__":
         net.save()
         pass
     #net = Network([3,5, 1])
-
     training_data = neural_net.loadTrainingData()
+    print(training_data)
     #training_data = [(np.array([[0, 0, 1]]).T, np.array([[0]])), (np.array([[0, 1, 1]]).T, np.array([[1]])), (np.array([[1, 0, 1]]).T, np.array([[1]])), (np.array([[0, 1, 0]]).T, np.array([[1]])), (np.array([[1, 0, 0]]).T, np.array([[1]])), (np.array([[1, 1, 1]]).T,np.array([[0]])), (np.array([[0, 0, 0]]).T, np.array([[0]]))]
 
     if log:
@@ -280,8 +337,12 @@ if __name__ == "__main__":
         print((net.biases))
 
     #training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-    net.train(training_data, 300000, 20, 20.0, 50)
+    net.train(training_data, 10000, 20, 100, 10000)
+    #print("finished")
+    #net.train(training_data, 300000, 20, 20.0, 5000)
     #print(net.feedforward(np.array([[1,0,0]]).T))
-    #testpath = neural_net.savePath + "training\\data\\banane\\"
+    #testpath = neural_net.savePath + "training\\mnistdata\\banane\\"
     #print(net.feedforward(neural_net.getArrayData(testpath+"22.jpg", np.zeros((5,5)))[0]))
-    net.doTest()
+
+    print("Finished Training")
+    net.doTest(True)

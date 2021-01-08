@@ -4,7 +4,7 @@ import os
 def getRandomWeights(anzahlInputsProNeuron, anzahlNeuronen):
     return 2 * np.random.random((anzahlInputsProNeuron, anzahlNeuronen)) - 1
 
-savePath = "C:/Users/JulianEbeling/Documents/xampp/xampp/htdocs/Objekt-KI/html/"#AI Test Data\\"
+savePath = "D:\\Other\\AI Training Data\\image\\AI Test Data\\"
 #savePath = "saveTest\\"
 
 training_inputs = np.array([[0, 0, 1], [0, 1, 1], [1, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 1], [0, 0, 0]])
@@ -217,19 +217,39 @@ def loadByteArray2(path):
 def trainingFunction(x, formel):
 
     #y = 2*x
-    y = eval(formel)
+
+    try:
+        y = eval(formel.replace("x", str(x)))
+    except:
+        y = 0
     return y
 
 def loadTrainingDataNumbers(formel):
     training_data = []
+    numberofvalues = 10000
 
-    ins = range(NUMBERLIMIT)#range(int(100))
+    #get max in
+    for max in range(NUMBERLIMIT):
+        if trainingFunction(max, formel) >= NUMBERLIMIT:
+            break
+
+    # get min in
+    for min in reversed(range(NUMBERLIMIT)):
+        tf = trainingFunction(min, formel)
+        if tf <= 0:
+            break
+
+    #get 10000 values
+    #print(min, max)
+    ins = np.arange(min, max, (max-min)/10000)#range(int(100))
+
     outs = []
     for x in ins:
         outs.append(trainingFunction(x, formel))
 
     for x,y in zip(ins, outs):
-        training_data.append((np.array([[x/NUMBERLIMIT]]), np.array([[y/NUMBERLIMIT]])))
+        if y <= NUMBERLIMIT:
+            training_data.append((np.array([[x/NUMBERLIMIT]]), np.array([[y/NUMBERLIMIT]])))
 
     return training_data
 
@@ -238,21 +258,21 @@ def loadTrainingArray():
 
     training_inputs = []
     training_outputs = []
-    path = savePath+"training\\data\\apfel\\"
+    path = savePath+"training\\mnistdata\\apfel\\"
     for p in os.listdir(path):
         if "." in p:
             #is file
             training_inputs.append(loadByteArray(path+p))
             training_outputs.append([1, 0])
-            print(f"loaded data apfel: {p}")
+            print(f"loaded mnistdata apfel: {p}")
 
-    path = savePath + "training\\data\\banane\\"
+    path = savePath + "training\\mnistdata\\banane\\"
     for p in os.listdir(path):
         if "." in p:
             # is file
             training_inputs.append(loadByteArray(path + p))
             training_outputs.append([0, 1])
-            print(f"loaded data banane: {p}")
+            print(f"loaded mnistdata banane: {p}")
 
     training_inputs = np.array(training_inputs)
     training_outputs = np.array(training_outputs)
@@ -267,19 +287,19 @@ def getArrayData(path, output):
 def loadTrainingData():
     training_data = []
 
-    path = savePath + "training\\data\\apfel\\"
+    path = savePath + "out\\"#"training\\mnistdata\\apfel\\"
     for p in os.listdir(path):
         if "." in p:
             # is file
             training_data.append(getArrayData(path+p, np.array([[1, 0]])))
-            print(f"loaded data apfel: {p}")
+            print(f"loaded mnistdata apfel: {p}")
 
-    path = savePath + "training\\data\\banane\\"
+    path = savePath + "out2\\"#"training\\mnistdata\\banane\\"
     for p in os.listdir(path):
         if "." in p:
             # is file
             training_data.append(getArrayData(path+p, np.array([[0, 1]])))
-            print(f"loaded data banane: {p}")
+            print(f"loaded mnistdata banane: {p}")
 
     return training_data
 
@@ -309,6 +329,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-    #print(loadByteArray("saveTest\\training\\data\\apfel\\1.jpg"))
+    #print(loadByteArray("saveTest\\training\\mnistdata\\apfel\\1.jpg"))
 
 #training_inputs, training_outputs = loadTrainingArray()
