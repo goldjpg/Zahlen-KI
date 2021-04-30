@@ -58,11 +58,13 @@ class Network(object):
 
             count += 1
 
-            if (i / iterations * 100) - status > 0.1:
+            if (i / iterations * 100) - status >= 0.1:
                 status = round( i / iterations * 100, 2)
                 if logTraining:
                     print(f"Status: {status}% at ", getTimestamp())
                 #self.doTest()
+                if productionCode:
+                    print(status)
 
         self.save(formel)
 
