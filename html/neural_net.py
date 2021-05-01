@@ -4,8 +4,8 @@ import os
 def getRandomWeights(anzahlInputsProNeuron, anzahlNeuronen):
     return 2 * np.random.random((anzahlInputsProNeuron, anzahlNeuronen)) - 1
 
-savePath = "C:\\Users\\JulianEbeling\\Documents\\xampp\\xampp\\htdocs\\Objekt-KI\\html\\"
-#savePath = "saveTest\\"
+savePath = "./"
+#savePath = "saveTest/"
 
 training_inputs = np.array([[0, 0, 1], [0, 1, 1], [1, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 1], [0, 0, 0]])
 training_outputs = np.array([[0, 1, 1, 1, 1, 0, 0]]).T
@@ -103,7 +103,7 @@ class Layer:
         weigthsString += "])"
         weigthsString = weigthsString.replace(",]", "]")
 
-        filecontent = f"weights={weigthsString}\n\nbiases=[]"
+        filecontent = f"weights={weigthsString}/n/nbiases=[]"
         file.write(filecontent)
         file.flush()
         file.close()
@@ -113,7 +113,7 @@ class Layer:
     def laod(self):
         file = open(savePath + self.ID, "r")
         filecontent = file.read()
-        self.weights = eval(filecontent.split("\n\n")[0].replace("weights=", ""))
+        self.weights = eval(filecontent.split("/n/n")[0].replace("weights=", ""))
         print(f"Loaded weigths from {self.ID}")
         file.close()
 
@@ -258,7 +258,7 @@ def loadTrainingArray():
 
     training_inputs = []
     training_outputs = []
-    path = savePath+"training\\mnistdata\\apfel\\"
+    path = savePath+"training/mnistdata/apfel/"
     for p in os.listdir(path):
         if "." in p:
             #is file
@@ -266,7 +266,7 @@ def loadTrainingArray():
             training_outputs.append([1, 0])
             print(f"loaded mnistdata apfel: {p}")
 
-    path = savePath + "training\\mnistdata\\banane\\"
+    path = savePath + "training/mnistdata/banane/"
     for p in os.listdir(path):
         if "." in p:
             # is file
@@ -287,14 +287,14 @@ def getArrayData(path, output):
 def loadTrainingData():
     training_data = []
 
-    path = savePath + "out\\"#"training\\mnistdata\\apfel\\"
+    path = savePath + "out/"#"training/mnistdata/apfel/"
     for p in os.listdir(path):
         if "." in p:
             # is file
             training_data.append(getArrayData(path+p, np.array([[1, 0]])))
             print(f"loaded mnistdata apfel: {p}")
 
-    path = savePath + "out2\\"#"training\\mnistdata\\banane\\"
+    path = savePath + "out2/"#"training/mnistdata/banane/"
     for p in os.listdir(path):
         if "." in p:
             # is file
@@ -329,6 +329,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-    #print(loadByteArray("saveTest\\training\\mnistdata\\apfel\\1.jpg"))
+    #print(loadByteArray("saveTest/training/mnistdata/apfel/1.jpg"))
 
 #training_inputs, training_outputs = loadTrainingArray()
