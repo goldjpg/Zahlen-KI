@@ -11,10 +11,10 @@
 	</header>
 	
 	<article>
-		<h1>Formel eigeben</h1>
+		<h1>Formel eingeben</h1>
 		<br>
 		<main>
-		<form action="train.php" method="post" enctype="multipart/form-data">
+		<form action="../api/start" method="get" >
 			<input type="text" name="formel">
 			<input type="submit" value="Trainieren">
 		</form>

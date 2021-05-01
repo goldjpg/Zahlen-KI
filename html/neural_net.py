@@ -4,7 +4,7 @@ import os
 def getRandomWeights(anzahlInputsProNeuron, anzahlNeuronen):
     return 2 * np.random.random((anzahlInputsProNeuron, anzahlNeuronen)) - 1
 
-savePath = "D:\\Other\\AI Training Data\\image\\AI Test Data\\"
+savePath = "C:\\Users\\JulianEbeling\\Documents\\xampp\\xampp\\htdocs\\Objekt-KI\\html\\"
 #savePath = "saveTest\\"
 
 training_inputs = np.array([[0, 0, 1], [0, 1, 1], [1, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 1], [0, 0, 0]])

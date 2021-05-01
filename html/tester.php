@@ -17,7 +17,7 @@
 		<main>
 		<form action="run.php?id=<?php echo $_GET["formel"]?>" method="post" enctype="multipart/form-data">
 			<input type="number" name="zahl">
-			<input type="submit" value="Trainieren">
+			<input type="submit" value="Ausführen">
 		</form>
 		<br>
 		<h2>Ergebnis: <?php echo @$_GET["result"]?><h2>
