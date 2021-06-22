@@ -64,7 +64,7 @@ class Network(object):
                     print(f"Status: {status}% at ", getTimestamp())
                 #self.doTest()
                 if productionCode:
-                    print(status)
+                    print(status, flush=True)
 
         self.save(formel)
 
