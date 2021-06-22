@@ -64,7 +64,7 @@ class Network(object):
                     print(f"Status: {status}% at ", getTimestamp())
                 #self.doTest()
                 if productionCode:
-                    print(status, flush=True)
+                    print(status)
 
         self.save(formel)
 
@@ -158,10 +158,10 @@ class Network(object):
             id = str(datetime.now().timestamp())
             newPath = neural_net.savePath + id
             os.mkdir(newPath)
-            np.save(newPath+"/weights.npy", self.weights, allow_pickle=True)
-            np.save(newPath+"/biases.npy", self.biases, allow_pickle=True)
+            np.save(newPath+"\\weights.npy", self.weights, allow_pickle=True)
+            np.save(newPath+"\\biases.npy", self.biases, allow_pickle=True)
             if formel != "":
-                with open(newPath+"/formel.txt", "w") as f:
+                with open(newPath+"\\formel.txt", "w") as f:
                     f.write(formel)
             print(id)
         else:
@@ -174,8 +174,8 @@ class Network(object):
 
     def load(self, id=-1):
         if productionCode:
-            self.weights = np.load(neural_net.savePath +str(id)+ "/weights.npy", allow_pickle=True)
-            self.biases = np.load(neural_net.savePath +str(id)+ "/biases.npy", allow_pickle=True)
+            self.weights = np.load(neural_net.savePath +str(id)+ "\\weights.npy", allow_pickle=True)
+            self.biases = np.load(neural_net.savePath +str(id)+ "\\biases.npy", allow_pickle=True)
             return
 
         self.weights = np.load(neural_net.savePath+"weights.npy", allow_pickle=True)
@@ -197,12 +197,12 @@ class Network(object):
             print("loaded network")
 
     def doTest(self, image=False):
-        testpath = neural_net.savePath + "training/mnistdata/apfel/"
+        testpath = neural_net.savePath + "training\\mnistdata\\apfel\\"
 
         p = testpath + "1.jpg"
         if logTraining:
             if image:
-                p = neural_net.savePath + "out2/w1.png"
+                p = neural_net.savePath + "out2\\w1.png"
                 print(p)
                 print("Testing : ", p)
                 print(self.feedforward(neural_net.getArrayData(p, np.zeros((5, 5)))[0]))
@@ -270,13 +270,15 @@ def main2():
     if train:
         ITERATIONS = 100
         net.train(training_data, ITERATIONS, 20, 2, ITERATIONS, formel=formel)
+        print(formel)
+
     elif run:
         id = args[2]
         x = float(args[3])
         net.load(id=id)
-        p = neural_net.savePath + f"/{id}"
+        p = neural_net.savePath + f"\\{id}"
         formel = ""
-        with open(p + "/formel.txt", "r") as f:
+        with open(p + "\\formel.txt", "r") as f:
             formel = f.read()
         #print(formel)
         #print(neural_net.trainingFunction(x, formel), formel)
@@ -343,7 +345,7 @@ if __name__ == "__main__":
     #print("finished")
     #net.train(training_data, 300000, 20, 20.0, 5000)
     #print(net.feedforward(np.array([[1,0,0]]).T))
-    #testpath = neural_net.savePath + "training/mnistdata/banane/"
+    #testpath = neural_net.savePath + "training\\mnistdata\\banane\\"
     #print(net.feedforward(neural_net.getArrayData(testpath+"22.jpg", np.zeros((5,5)))[0]))
 
     print("Finished Training")
